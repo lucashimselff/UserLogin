@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds" debug="false">
+    <!--上下文名称,可加可不加,为了美观可写自己公司名称缩写-->
+    <contextName>MXK</contextName>
+    <!-- 日志存放目录 -->
+    <property name="log.path" value="D:/resource/logs" />
+    <property name="log.charset" value="utf-8" />
+    <!--                                             上下文名称      红色 日期格式                     绿色   线程                   等级                   日志最长36          方法     行数        换行          -->
+    <property name="log.consolePattern" value="%contextName- %red(%d{yyyy-MM-dd HH:mm:ss}) %green([%thread]) %highlight(%-5level) %boldMagenta(%logger{36}) - %red([%method,%line]) - %msg%n" />
+    <!--基本他同上, 具体可看资料3-->
+    <property name="log.filePattern" value="%contextName- %d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{20} - [%method,%line] - %msg%n" />
+
+    <!--输出到控制台-->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${log.consolePattern}</pattern>
+            <charset>${log.charset}</charset>
+        </encoder>
+    </appender>
+
+    <!-- 系统日志输出 -->
+    <appender name="file_info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/sys-info.log</file>
+        <!-- 循环政策：基于时间创建日志文件 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+            <fileNamePattern>${log.path}/sys-info.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 日志最大的历史 60天 -->
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+        <!--编码器-->
+        <encoder>
+            <pattern>${log.filePattern}</pattern>
+            <charset>${log.charset}</charset>
+        </encoder>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 过滤的级别 -->
+            <level>INFO</level>
+            <!-- 匹配时的操作：接收（记录） -->
+            <onMatch>ACCEPT</onMatch>
+            <!-- 不匹配时的操作：拒绝（不记录） -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 系统日志输出 -->
+    <appender name="file_debug" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/sys-debug.log</file>
+        <!-- 循环政策：基于时间创建日志文件 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+            <fileNamePattern>${log.path}/sys-debug.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 日志最大的历史 60天 -->
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.filePattern}</pattern>
+            <charset>${log.charset}</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 过滤的级别 -->
+            <level>DEBUG</level>
+            <!-- 匹配时的操作：接收（记录） -->
+            <onMatch>ACCEPT</onMatch>
+            <!-- 不匹配时的操作：拒绝（不记录） -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <appender name="file_error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/sys-error.log</file>
+        <!-- 循环政策：基于时间创建日志文件 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+            <fileNamePattern>${log.path}/sys-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 日志最大的历史 60天 -->
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.filePattern}</pattern>
+            <charset>${log.charset}</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 过滤的级别 -->
+            <level>ERROR</level>
+            <!-- 匹配时的操作：接收（记录） -->
+            <onMatch>ACCEPT</onMatch>
+            <!-- 不匹配时的操作：拒绝（不记录） -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="console" />
+    </root>
+
+    <!--系统操作日志-->
+    <root level="info">
+        <appender-ref ref="file_info" />
+        <appender-ref ref="file_error" />
+        <appender-ref ref="file_debug" />
+    </root>
+
+    <!--监控sql日志输出 -->
+    <!--      仅仅记录 SQL 语句，会将占位符替换为实际的参数-->
+    <logger name="jdbc.sqlonly" level="INFO" additivity="false">
+        <appender-ref ref="console" />
+    </logger>
+    <!--  包含 ResultSet 的信息，输出篇幅较长  -->
+    <logger name="jdbc.resultset" level="ERROR" additivity="false">
+        <appender-ref ref="console" />
+    </logger>
+
+    <!--  如想看到表格数据，将OFF改为INFO  -->
+    <logger name="jdbc.resultsettable" level="OFF" additivity="false">
+        <appender-ref ref="console" />
+    </logger>
+    <!-- 输出了 Connection 的 open、close 等信息  -->
+    <logger name="jdbc.connection" level="OFF" additivity="false">
+        <appender-ref ref="console" />
+    </logger>
+    <!--    包含 SQL 语句实际的执行时间 及sql语句（与jdbc.sqlonly功能重复）   -->
+    <logger name="jdbc.sqltiming" level="OFF" additivity="false">
+        <appender-ref ref="console" />
+    </logger>
+    <!--    除了 ResultSet 之外的所有JDBC调用信息，篇幅较长 -->
+    <logger name="jdbc.audit" level="OFF" additivity="false">
+        <appender-ref ref="console" />
+    </logger>
+</configuration>
